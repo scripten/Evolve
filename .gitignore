@@ -1,0 +1,7 @@
+# a list of file name patterns to ignore in git
+.classpath
+.project
+*.class
+*.jar
+
+*~
