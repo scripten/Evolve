@@ -67,13 +67,10 @@ better_path(Current, Goal, Explored, [Current | Tail]) :-
     better_path(Neighbor, Goal, [Neighbor | Explored], Tail).
 
 extract([], Sofar, Sofar).
-extract([H | T], Sofar, Best) :-
-    =(H, node(HCity, HDistance)),
-    =(Sofar, node(SCity, SDistance)),
+extract([node(HCity, HDistance) | T], node(SCity, SDistance), Best) :-
+    writef(node(HCity, HDistance)),
     HDistance < SDistance,
-    extract(T, H, Best).
-extract([H | T], Sofar, Best) :-
-    =(H, node(HCity, HDistance)),
-    =(Sofar, node(SCity, SDistance)),
+    extract(T, node(HCity, HDistance), Best).
+extract([node(HCity, HDistance) | T], node(SCity, SDistance), Best) :-
     HDistance >= SDistance,
-    extract(T, Sofar, Best).
+    extract(T, node(SCity, SDistance), Best).
