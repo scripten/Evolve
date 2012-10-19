@@ -22,6 +22,7 @@ road(urziceni, hirsova).
 road(drobeta, cralova).
 road(hirsova, eforie).
 /* ------------------------------------------ */
+road(zerind, oradea).
 road(sibiu, oradea).
 road(iasi, neamt).
 road(arad, zerind).
