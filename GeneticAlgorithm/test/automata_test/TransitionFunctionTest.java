@@ -10,74 +10,10 @@ import java.util.List;
 import org.junit.Test;
 
 import automata.CA;
-import automata.StateProvider;
 import automata.TransitionFunction;
 
-public class TransitionFunctionTest {
-
-	private List<Integer> validStateFunction(int sizeOfNeighborhood, int numberOfStates) {
-		List<Integer> stateFunction = new ArrayList<Integer>();
-		int state = 0;
-		for (int i = 0; i < TransitionFunction.calculateStateFunctionSize(sizeOfNeighborhood, numberOfStates); ++i) {
-			stateFunction.add(state);
-			state = (state + 1) % numberOfStates;
-		}
-		return stateFunction;
-	}
-
-	/**
-	 * Create a state function with a single out-of-range function value in the
-	 * last slot. 
-	 * 
-	 * @param sizeOfNeighborhood
-	 *            number of elements participating in the transition function
-	 * @param numberOfStates
-	 *            number of unique states to have in the function
-	 * @return invalid transition function table
-	 */
-	private List<Integer> invalidStateFunction(int sizeOfNeighborhood, int numberOfStates) {
-		List<Integer> stateFunction = validStateFunction(sizeOfNeighborhood, numberOfStates);		
-		
-		// last element one too large
-		int sizeOfFunction = TransitionFunction.calculateStateFunctionSize(sizeOfNeighborhood, numberOfStates);
-		stateFunction.set(sizeOfFunction - 1, numberOfStates);
-
-		return stateFunction;
-	}
-	
-	private List<Integer> shortStateFunction(int sizeOfNeighborhood, int numberOfStates) {
-		List<Integer> stateFunction = validStateFunction(sizeOfNeighborhood, numberOfStates);		
-		
-		// last element removed
-		int sizeOfFunction = TransitionFunction.calculateStateFunctionSize(sizeOfNeighborhood, numberOfStates);
-		stateFunction.remove(sizeOfFunction - 1);
-
-		return stateFunction;
-	}
-
-	private List<Integer> longStateFunction(int sizeOfNeighborhood, int numberOfStates) {
-		List<Integer> stateFunction = validStateFunction(sizeOfNeighborhood, numberOfStates);		
-		
-		// add extra element
-		stateFunction.add(0);
-
-		return stateFunction;
-	}
-	
-	/**
-	 * Create a state function with values that cycle across the range of valid
-	 * value.
-	 * 
-	 * @param sizeOfNeighborhood
-	 *            number of elements participating in the transition function
-	 * @param numberOfStates
-	 *            number of unique states to have in the function
-	 * @return a valid, cycling transition function
-	 */
-	private TransitionFunction makeValidTransitionFunction(int sizeOfNeighborhood, int numberOfStates) {
-		List<Integer> stateFunction = validStateFunction(sizeOfNeighborhood, numberOfStates);		
-		return new TransitionFunction(stateFunction, sizeOfNeighborhood, numberOfStates);
-	}
+public class TransitionFunctionTest 
+	extends TransitionFunctionTestBase {
 	
 	@Test
 	public void testConstructorWithValidTransitionFunction() {
@@ -129,15 +65,25 @@ public class TransitionFunctionTest {
 	}
 
 	@Test
+	public void testSizeOfStateFunction() {
+		for (int neighborhood = 3; neighborhood < 10; neighborhood+=2) {
+			for (int states = 2; states < 6; ++states) {
+				TransitionFunction transitionFunction = new TransitionFunction(validStateFunction(neighborhood, states), neighborhood, states);
+				assertThat(transitionFunction.getStateFunctionSize(), equalTo((int)(Math.pow(states, neighborhood))));
+			}
+		}
+	}
+	
+	@Test
 	public void testNextStateNdx() {
 		int sizeOfNeighborhood = 7;
 		int numberOfStates = 2;
 		List<Integer> function = validStateFunction(sizeOfNeighborhood, numberOfStates);
 		TransitionFunction transitionFunction = new TransitionFunction(function, sizeOfNeighborhood, numberOfStates);
 
-		List<StateProvider> automata = new ArrayList<StateProvider>();
+		List<CA> automata = new ArrayList<CA>();
 		for (int i = 0; i < transitionFunction.getNeighborhoodSize(); ++i)
-			automata.add(new StateProvider() {
+			automata.add(new CA(0) {
 				int state = 0;
 				@Override public void setState(int i) { state = i; }
 				@Override public int getState() { return state; }

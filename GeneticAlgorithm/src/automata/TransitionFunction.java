@@ -64,17 +64,6 @@ public class TransitionFunction {
 	}
 
 	/**
-	 * Get the state value at a given index in the function.
-	 * 
-	 * @param index
-	 *            the number of the entry in the function
-	 * @return the state value recorded at the given location
-	 */
-	public int get(int index) {
-		return function.get(index);
-	}
-
-	/**
 	 * Use the neighborhood to calculate an index into the function table.
 	 * 
 	 * @param neighborhood
@@ -82,7 +71,7 @@ public class TransitionFunction {
 	 *            numberOfStates number
 	 * @return the state stored at the given location
 	 */
-	public int get(List<StateProvider> neighborhood) {
+	public int get(List<CA> neighborhood) {
 		if (neighborhood == null)
 			throw new IllegalStateException(
 					String.format("neighborhood == null; cannot calculate ndx of next state"));
@@ -91,6 +80,17 @@ public class TransitionFunction {
 			ndx = getNumberOfStates() * ndx + neighborhood.get(i).getState();
 		// index into the table
 		return get(ndx);
+	}
+
+	/**
+	 * Get the state value at a given index in the function.
+	 * 
+	 * @param index
+	 *            the number of the entry in the function
+	 * @return the state value recorded at the given location
+	 */
+	public int get(int index) {
+		return function.get(index);
 	}
 
 	/**
