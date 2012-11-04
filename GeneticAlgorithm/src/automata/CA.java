@@ -73,6 +73,14 @@ public class CA {
 	}
 
 	/**
+	 * Get neighborhood list
+	 * @return current neighborhood list
+	 */
+	public List<CA> getNeighborhood() {
+		return neighborhood;
+	}
+
+	/**
 	 * Returns the current state.
 	 */
 	public int getState() {
