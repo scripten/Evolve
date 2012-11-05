@@ -2,6 +2,7 @@ package environment;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 import automata.CA;
 import automata.TransitionFunction;
@@ -13,12 +14,20 @@ public class Environment {
 		return Environment.size;
 	}
 
+	public static List<Integer> randomStates(Random random, int numberOfStates) {
+		List<Integer> states = new ArrayList<Integer>();
+		for (int i = 0; i < getSize(); ++i)
+			states.add(random.nextInt(numberOfStates));
+		return states;
+	}
+
+	
 	public static void setSize(int size) {
 		Environment.size = size;
 	}
-
 	private List<CA> currentGeneration;
 	private List<CA> nextGeneration;
+
 	private TransitionFunction program;
 
 	public Environment(TransitionFunction program) {
@@ -27,12 +36,19 @@ public class Environment {
 		currentGeneration = populate();
 		nextGeneration = populate();
 	}
-
+	
+	public void advance(int generationCount) {
+		for (int gen = 0; gen < generationCount; ++gen) {
+			calculateNextGeneration();
+			nextGeneration();
+		}
+	}
+	
 	public void calculateNextGeneration() {
 		for (int i = 0; i < getSize(); ++i)
 			nextGeneration.get(i).setState(currentGeneration.get(i).nextState());
 	}
-	
+
 	public CA get(int index) {
 		return currentGeneration.get(index);
 	}
@@ -53,21 +69,6 @@ public class Environment {
 		List<CA> temp = currentGeneration;
 		currentGeneration = nextGeneration;
 		nextGeneration = temp;
-	}
-
-	public void advance(int generationCount) {
-		for (int gen = 0; gen < generationCount; ++gen) {
-			calculateNextGeneration();
-			nextGeneration();
-		}
-	}
-	
-	@Override
-	public String toString() {
-		StringBuffer buffer = new StringBuffer();
-		for (int i = 0; i < getSize(); ++i)
-			buffer.append(currentGeneration.get(i).getState());
-		return buffer.toString();
 	}
 	
 	private List<CA> populate() {
@@ -99,6 +100,16 @@ public class Environment {
 		}
 		return circularArray;
 	}
+	
+	public double run(List<Integer> initialStates, int expected, int generations) {
+		set(initialStates);
+		advance(generations);
+		int matches = 0;
+		for (CA ca : currentGeneration)
+			if (ca.getState() == expected)
+				++matches;
+		return 1.0 * matches / getSize();
+	}
 
 	public void set(List<Integer> states) {
 		if (states.size() != getSize())
@@ -107,5 +118,13 @@ public class Environment {
 					states.size()));
 		for (int i = 0; i < getSize(); ++i)
 			currentGeneration.get(i).setState(states.get(i));
+	}
+	
+	@Override
+	public String toString() {
+		StringBuffer buffer = new StringBuffer();
+		for (int i = 0; i < getSize(); ++i)
+			buffer.append(currentGeneration.get(i).getState());
+		return buffer.toString();
 	}
 }

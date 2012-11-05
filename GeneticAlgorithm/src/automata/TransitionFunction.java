@@ -3,6 +3,7 @@ package automata;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Random;
 
 /**
  * Cellular automaton transition function described by a sequence of result
@@ -10,12 +11,23 @@ import java.util.List;
  * 
  * @author blad
  */
-public class TransitionFunction {
+public class TransitionFunction implements Comparable<TransitionFunction> {
+	public static double mutationChance = 0.001;
 	private List<Integer> function;
 	// size of the neighborhood (how many CA are used to index the table)
 	private int neighborhoodSize;
 	// unique states; base to interpret neighborhood as an integer
 	private int numberOfStates;
+
+	private double fitness;
+	
+	public double getFitness() {
+		return fitness;
+	}
+
+	public void setFitness(double fitness) {
+		this.fitness = fitness;
+	}
 
 	/**
 	 * Get the neighborhood size used to construct this function.
@@ -128,5 +140,60 @@ public class TransitionFunction {
 		this.numberOfStates = numberOfStates;
 
 		this.function = new ArrayList(function);
+	}
+
+	/**
+	 * Construct a TransitionFunction with a random table as the value and the
+	 * given dimensions
+	 * 
+	 * @param random
+	 * a seeded random number generator to fill in the function table
+	 * @param neighborhoodSize
+	 *            elements in a neighborhood
+	 * @param numberOfStates
+	 *            number of states any element could have
+	 */
+	public TransitionFunction(Random random, int neighborhoodSize,
+			int numberOfStates) {
+		if (neighborhoodSize == 0)
+			throw new IllegalArgumentException("neighborhoodSize cannot be 0");
+		if (numberOfStates == 0)
+			throw new IllegalArgumentException("numberOfStates cannot be 0");
+
+		this.neighborhoodSize = neighborhoodSize;
+		this.numberOfStates = numberOfStates;
+
+		this.function = new ArrayList<Integer>(getNumberOfStates());
+		for (int s = 0; s < getStateFunctionSize(); ++s)
+			this.function.add(random.nextInt(getNumberOfStates()));
+	}
+
+	public static TransitionFunction reproduce(Random random, TransitionFunction left, TransitionFunction right) {
+		int size = left.getStateFunctionSize();
+		int crossover = random.nextInt(size);
+		List<Integer> offspringFunction = new ArrayList<Integer>(left.function.subList(0, crossover));
+		offspringFunction.addAll(right.function.subList(crossover, size));
+		while (random.nextDouble() < mutationChance) {
+			int ndx = random.nextInt(size);
+			offspringFunction.set(ndx, 1 - offspringFunction.get(ndx));
+		}
+			
+		return new TransitionFunction(offspringFunction, left.getNeighborhoodSize(), left.getNumberOfStates());
+	}
+	
+	@Override
+	public String toString() {
+		StringBuffer buffer = new StringBuffer();
+		buffer.append(fitness);
+		buffer.append(": ");
+		buffer.append(function);
+		return buffer.toString();
+	}
+	
+	@Override
+	public int compareTo(TransitionFunction o) {
+		if (fitness < o.fitness) return -1;
+		if (fitness == o.fitness) return 0;
+		return 1;
 	}
 }
