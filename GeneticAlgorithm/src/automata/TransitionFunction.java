@@ -12,7 +12,26 @@ import java.util.Random;
  * @author blad
  */
 public class TransitionFunction implements Comparable<TransitionFunction> {
-	public static double mutationChance = 0.001;
+	public static double mutationChance = 0.5;
+	private static int monitorReproduction = 1;
+	private static int identical;
+	
+	public static int getMonitorReproduction() {
+		return monitorReproduction;
+	}
+
+	public static void setMonitorReproduction(int monitorReproduction) {
+		TransitionFunction.monitorReproduction = monitorReproduction;
+	}
+
+	public static int getIdentical() {
+		return identical;
+	}
+
+	public static void clearIdentical() {
+		TransitionFunction.identical = 0;
+	}
+
 	private List<Integer> function;
 	// size of the neighborhood (how many CA are used to index the table)
 	private int neighborhoodSize;
@@ -177,19 +196,67 @@ public class TransitionFunction implements Comparable<TransitionFunction> {
 			int ndx = random.nextInt(size);
 			offspringFunction.set(ndx, 1 - offspringFunction.get(ndx));
 		}
-			
+		
+		int lDiff = -1;
+		int rDiff = -1;
+		for (int i = 0; i < size && (lDiff == -1 || rDiff == -1); ++i) {
+			if (left.get(i) != offspringFunction.get(i)) lDiff = i;
+			if (right.get(i) != offspringFunction.get(i)) rDiff = i;
+		}
+		if (monitorReproduction == 1) {
+			identical += (lDiff == -1 || rDiff == -1)?1:0;
+		} else if (monitorReproduction == 2) {
+			System.out.println(String.format("reproduce differences %d, %d", lDiff, rDiff));
+		}
+		
 		return new TransitionFunction(offspringFunction, left.getNeighborhoodSize(), left.getNumberOfStates());
 	}
 	
 	@Override
 	public String toString() {
 		StringBuffer buffer = new StringBuffer();
-		buffer.append(fitness);
-		buffer.append(": ");
-		buffer.append(function);
+		buffer.append(String.format("%f6: ", fitness));
+		for (Integer i : function) 
+			if (i == 0) buffer.append(' ');
+			else buffer.append('.');
+//		buffer.append(function);
 		return buffer.toString();
 	}
 	
+	
+	
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result
+				+ ((function == null) ? 0 : function.hashCode());
+		result = prime * result + neighborhoodSize;
+		result = prime * result + numberOfStates;
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		TransitionFunction other = (TransitionFunction) obj;
+		if (function == null) {
+			if (other.function != null)
+				return false;
+		} else if (!function.equals(other.function))
+			return false;
+		if (neighborhoodSize != other.neighborhoodSize)
+			return false;
+		if (numberOfStates != other.numberOfStates)
+			return false;
+		return true;
+	}
+
 	@Override
 	public int compareTo(TransitionFunction o) {
 		if (fitness < o.fitness) return -1;
