@@ -25,27 +25,37 @@ public class Evolve {
 		Class<?> provisionalWorldClass = loadWorldClass();
 		Class<World> worldInterfaceClass = World.class;
 		if (!worldInterfaceClass.isAssignableFrom(provisionalWorldClass))
-			throw new NoWorldClassSpecified(String.format("Class %s does not implement %s.", worldClass.getName(), worldInterfaceClass.getName()));
-		worldClass = (Class<World>)provisionalWorldClass;
+			throw new NoWorldClassSpecified(String.format(
+					"Class %s does not implement %s.", worldClass.getName(),
+					worldInterfaceClass.getName()));
+		worldClass = (Class<World>) provisionalWorldClass;
 	}
-
 
 	private Class<?> loadWorldClass() throws ClassNotFoundException {
-	    ClassLoader classLoader = Evolve.class.getClassLoader();
-	    return classLoader.loadClass(worldClassName);
+		ClassLoader classLoader = Evolve.class.getClassLoader();
+		return classLoader.loadClass(worldClassName);
 	}
 
+	/**
+	 * Get the worldClass stored by this application
+	 *
+	 * @return the worldClass specified when running this application.
+	 */
 	public Class<World> getWorldClass() {
 		return worldClass;
 	}
 
+	/**
+	 * Construct a World object (as specified on the commandline) using the given worldParameters.
+	 * @param wp world parameters to use in initializing the world
+	 * @return the initizlized world object if all went well; null otherwise
+	 */
 	public World makeWorld(WorldParameters wp) {
 		Constructor<World> worldMaker;
 		try {
 			worldMaker = worldClass.getConstructor();
 			World world = worldMaker.newInstance();
 			world.init(wp);
-			world.addListener(face);
 			return world;
 		} catch (NoSuchMethodException | SecurityException e0) {
 			e0.printStackTrace();
@@ -59,9 +69,13 @@ public class Evolve {
 	}
 
 	/**
+	 * Load a WorldParameters from a file. Returns the loaded parameters object
+	 * or it returns null (if there was a problem)
 	 *
 	 * @param loadFile
-	 * @return
+	 *            file from which to load
+	 * @return a filled-in WorldParameters object from the file if there were no
+	 *         problems; null otherwise
 	 */
 	public WorldParameters load(File loadFile) {
 		try {
@@ -106,7 +120,8 @@ public class Evolve {
 	 * @throws ClassNotFoundException
 	 * @throws Exception
 	 */
-	public static void main(String[] args) throws ClassNotFoundException, Exception {
+	public static void main(String[] args) throws ClassNotFoundException,
+			Exception {
 		if (args.length < 1)
 			throw new NoWorldClassSpecified("Expected a world class name.");
 		String worldClassName = args[0];

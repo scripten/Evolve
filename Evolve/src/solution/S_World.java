@@ -7,6 +7,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 import java.util.Scanner;
 
 import livingObjects.Location;
@@ -51,18 +52,17 @@ public class S_World implements World {
 			plants = new ArrayList<S_Plant>();
 			for (String name : worldParameters.getSpeciesNames()) {
 				String speciesName = name + "." + SPECIES_FILE_EXTENSION;
+				String worldSpeciesName = worldParameters.getBasePath() + "/" + speciesName;
+				System.out.println(String.format("name: %s; speciesName: %s; worldSpeciesName: %s", name, speciesName, worldSpeciesName));
 				File fin = new File(speciesName);
 				if (!fin.exists()) {
-					fin = new File(worldParameters.getBasePath() + speciesName);
+					fin = new File(worldSpeciesName);
 					if (!fin.exists())
 						throw new FileNotFoundException("Could not find file "
 								+ speciesName);
 				}
 				S_Species the_species = S_Species.loadSpecies(speciesName,
-						new Scanner(fin));
-				the_species.setColor(worldParameters.getColor(name));
-				the_species.setName(name);
-				the_species.setFoodValue(worldParameters.getAnimalFoodValue());
+						new Scanner(fin), worldParameters);
 				species.add(the_species);
 			}
 			S_Plant plant = new S_Plant();
@@ -116,13 +116,17 @@ public class S_World implements World {
 		}
 	}
 
+	Random r = new Random();
 	@Override
 	public void update(BufferedImage display) {
 		Graphics d = display.getGraphics();
-		d.setColor(Color.red);
-		d.fillOval(400, 100, 100, 100);
-		d.setColor(Color.blue);
-		d.drawOval(10, 10, 300, 300);
+		d.setColor(Color.black);
+		d.fillRect(0,  0,  display.getWidth(), display.getHeight());
+
+		for (int i = 0; i < 100; ++i) {
+			display.setRGB(r.nextInt(display.getWidth()),
+					       r.nextInt(display.getHeight()), Color.red.getRGB() );
+		}
 	}
 
 	@Override

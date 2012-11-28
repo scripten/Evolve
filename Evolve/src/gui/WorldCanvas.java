@@ -6,6 +6,7 @@ import java.awt.image.BufferedImage;
 
 import javax.swing.JPanel;
 
+@SuppressWarnings("serial")
 public class WorldCanvas extends JPanel {
 	private BufferedImage worldImage;
 	/**

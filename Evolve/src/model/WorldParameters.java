@@ -597,9 +597,9 @@ public class WorldParameters {
 	 * Line 1 (read before this method is called) "ver 1.0"
 	 * Lines 2-13 Y<SPECIES> or N (yes or no creature, creature name).
 	 * Line 14 plant food value
-	 * Line 15 plant sprout Line
-	 * 16 plant max Line
-	 * 17 plant life
+	 * Line 15 plant sprout %
+	 * Line 16 plant max population
+	 * Line 17 plant life (in generations)
 	 * Line 18 =0
 	 * Line 19 =0
 	 * Line 20 plant pattern 0 random, 1,2 number of groups
@@ -607,10 +607,10 @@ public class WorldParameters {
 	 * Line 22 max total animal population
 	 * Line 23 animal food energy
 	 * Line 24 initial energy
-	 * Line 25 spawning threshold
-	 * Line 26 =3
+	 * Line 25 spawning cost
+	 * Line 26 number of hunters needed (?) =3
 	 * Line 27 =0
-	 * Line 28 =8
+	 * Line 28 sensor range in pixels (?) =8
 	 * Line 29 random on/off
 	 * Line 30 random seed
 	 * Line 31 =0

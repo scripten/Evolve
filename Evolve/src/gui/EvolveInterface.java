@@ -27,7 +27,8 @@ import model.World;
 import model.WorldListener;
 import model.WorldParameters;
 
-public class EvolveInterface extends JFrame implements WorldListener, ActionListener {
+public class EvolveInterface extends JFrame implements WorldListener,
+		ActionListener {
 	private static final String startingPath = "/home/blad/Teaching/421/notes/evolve/";
 	/**
 	 * The application; provides services to the interface.
@@ -52,6 +53,7 @@ public class EvolveInterface extends JFrame implements WorldListener, ActionList
 	private JLabel lblGencount;
 
 	private WorldCanvas worldCanvas;
+
 	/**
 	 * Create the application.
 	 */
@@ -118,9 +120,12 @@ public class EvolveInterface extends JFrame implements WorldListener, ActionList
 		speciesPanel.setLayout(new BoxLayout(speciesPanel, BoxLayout.Y_AXIS));
 		worldPanel.add(speciesPanel, BorderLayout.EAST);
 
+		// TODO Make these actually do something. Probably need to get the Species
+		// for the name.
 		List<JButton> species = new ArrayList<JButton>();
 		for (int i = 0; i < 12; ++i) {
-			JButton btnSpecies = new JButton(String.format("Species %2d",i+1));
+			JButton btnSpecies = new JButton(
+					String.format("Species %2d", i + 1));
 			speciesPanel.add(btnSpecies);
 			species.add(btnSpecies);
 		}
@@ -132,6 +137,33 @@ public class EvolveInterface extends JFrame implements WorldListener, ActionList
 		System.exit(0);
 	}
 
+	/**
+	 * Load the world from the given file object, initalizing it and kicking off
+	 * the simulation.
+	 *
+	 * @param file
+	 *            the File containing an evolution world
+	 */
+	private void setCurrentWorld(File file) {
+		current = app.load(file);
+		if (current != null) {
+			World world = app.makeWorld(current);
+			world.addListener(this);
+
+			worldImage = new BufferedImage(current.getWidth(),
+					current.getHeight(), BufferedImage.TYPE_INT_ARGB);
+			worldCanvas.setWorldImage(worldImage);
+			app.runWorld(world);
+		}
+	}
+
+	// ------------------ Listener Callback Methods ---------------------
+	/**
+	 * Advance display to the next generation.
+	 *
+	 * @param sender
+	 *            the world calling with an update
+	 */
 	@Override
 	public void next(World sender) {
 		sender.update(worldImage);
@@ -139,14 +171,15 @@ public class EvolveInterface extends JFrame implements WorldListener, ActionList
 		repaint();
 	}
 
-	private void setCurrentWorld(File file) {
-		current = app.load(file);
-		World world = app.makeWorld(current);
-		worldImage = new BufferedImage(current.getWidth(), current.getHeight(), BufferedImage.TYPE_INT_ARGB);
-		worldCanvas.setWorldImage(worldImage);
-		app.runWorld(world);
-	}
-
+	/**
+	 * Button handling method. This interface is registered as the action
+	 * listener for all functional buttons. Here is where the processing is
+	 * dispatched. Remember that this is running on the interface thread!
+	 *
+	 * @param e
+	 *            the action event containing the button (as a source) for
+	 *            dispatch
+	 */
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		Object src = e.getSource();

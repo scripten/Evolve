@@ -10,6 +10,14 @@ import java.util.List;
  */
 public interface Genome {
 	/**
+	 * Get probability of mutation happening when an animal with this genome
+	 * reproduces.
+	 *
+	 * @return 0.0 <= chance <= 1.0 chance of mutation during reproduction
+	 */
+	public double getActionGeneMutationChance();
+
+	/**
 	 * Get the ordered list of action genes
 	 *
 	 * @return list of ActionGene objects
@@ -37,7 +45,7 @@ public interface Genome {
 	 *
 	 * @return 0.0 <= chance <= 1.0 chance of mutation during reproduction
 	 */
-	public double getMutationChance();
+	public double getMetabolismMutationChance();
 
 	/**
 	 * Get the energy threshold where an animal with this genome will reproduce
@@ -45,4 +53,12 @@ public interface Genome {
 	 * @return spawn threshold energy
 	 */
 	public int getSpawnThreshold();
+
+	/**
+	 * Get probability of mutation happening when an animal with this genome
+	 * reproduces.
+	 *
+	 * @return 0.0 <= chance <= 1.0 chance of mutation during reproduction
+	 */
+	public double getSpawnThresholdMutationChance();
 }
