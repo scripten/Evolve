@@ -6,7 +6,7 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Scanner;
 
-import exceptions.NoWorldClassSpecified;
+import gui.exceptions.NoWorldClassSpecified;
 import model.World;
 import model.WorldParameters;
 
@@ -52,19 +52,33 @@ public class Evolve {
 	 */
 	public World makeWorld(WorldParameters wp) {
 		Constructor<World> worldMaker;
-		try {
-			worldMaker = worldClass.getConstructor();
-			World world = worldMaker.newInstance();
-			world.init(wp);
-			return world;
-		} catch (NoSuchMethodException | SecurityException e0) {
-			e0.printStackTrace();
-		} catch (InstantiationException | IllegalAccessException
-				| IllegalArgumentException | InvocationTargetException e1) {
-			e1.printStackTrace();
-		} catch (FileNotFoundException e2) {
-			e2.printStackTrace();
-		}
+			try {
+				worldMaker = worldClass.getConstructor();
+				World world = worldMaker.newInstance();
+				world.init(wp);
+			} catch (SecurityException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (NoSuchMethodException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (IllegalArgumentException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (InstantiationException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (IllegalAccessException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (InvocationTargetException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (FileNotFoundException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+
 		return null;
 	}
 

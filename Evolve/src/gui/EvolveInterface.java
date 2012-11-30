@@ -53,6 +53,7 @@ public class EvolveInterface extends JFrame implements WorldListener,
 	private JLabel lblGencount;
 
 	private WorldCanvas worldCanvas;
+	private List<JButton> speciesButtonList;
 
 	/**
 	 * Create the application.
@@ -120,21 +121,34 @@ public class EvolveInterface extends JFrame implements WorldListener,
 		speciesPanel.setLayout(new BoxLayout(speciesPanel, BoxLayout.Y_AXIS));
 		worldPanel.add(speciesPanel, BorderLayout.EAST);
 
-		// TODO Make these actually do something. Probably need to get the Species
-		// for the name.
-		List<JButton> species = new ArrayList<JButton>();
+		speciesButtonList = new ArrayList<JButton>();
 		for (int i = 0; i < 12; ++i) {
 			JButton btnSpecies = new JButton(
 					String.format("Species %2d", i + 1));
 			speciesPanel.add(btnSpecies);
-			species.add(btnSpecies);
+			speciesButtonList.add(btnSpecies);
+			btnSpecies.setVisible(false);
 		}
 		JPanel statisticsPanel = new JPanel();
 		tabbedPane.addTab("Statistics", null, statisticsPanel, null);
 	}
 
+	/**
+	 * What to do when the quit menu entry is selected.
+	 */
 	public void exit() {
 		System.exit(0);
+	}
+
+	private void exposeSpeciesButtons() {
+		int ndx = 0;
+		for (String s : current.getSpeciesNames()) {
+			Color clr = current.getColor(s);
+			JButton sButton = speciesButtonList.get(ndx++);
+			sButton.setText(s);
+			sButton.setBackground(clr);
+			sButton.setVisible(true);
+		}
 	}
 
 	/**
@@ -153,6 +167,7 @@ public class EvolveInterface extends JFrame implements WorldListener,
 			worldImage = new BufferedImage(current.getWidth(),
 					current.getHeight(), BufferedImage.TYPE_INT_ARGB);
 			worldCanvas.setWorldImage(worldImage);
+			exposeSpeciesButtons();
 			app.runWorld(world);
 		}
 	}
