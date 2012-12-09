@@ -11,12 +11,12 @@ import livingObjects.Species;
 import model.WorldParameters;
 
 public class S_Species implements Species {
-	public static S_Species loadSpecies(String name, Scanner fin, WorldParameters worldParameters) {
+	public static S_Species loadSpecies(String name, String s_name, Scanner fin, WorldParameters worldParameters) {
 		String line = fin.nextLine();
 		if (line.equals("ver 1.0"))
-			return version10(name, fin, worldParameters);
+			return version10(name, s_name, fin, worldParameters);
 		else if (line.equals("ver 2.0"))
-			return version20(name, fin, worldParameters);
+			return version20(name, s_name, fin, worldParameters);
 		return null;
 	}
 	/**
@@ -36,7 +36,7 @@ public class S_Species implements Species {
 	 * @param worldParameters
 	 * @return
 	 */
-	private static S_Species version10(String name, Scanner fin, WorldParameters worldParameters) {
+	private static S_Species version10(String name, String s_name, Scanner fin, WorldParameters worldParameters) {
 		S_Species the_species = new S_Species(name);
 		String line = fin.nextLine();
 		Scanner sin = new Scanner(line);
@@ -66,15 +66,15 @@ public class S_Species implements Species {
 		sin = new Scanner(line);
 		double spawnMutation = sin.nextInt() / 100.0;
 
-		the_species.genome = new S_Genome(actionGenes, metabolism, spawnThreshold, actionGeneMutation, metabolismMutation, spawnMutation);
+		the_species.genome = new S_Genome(0, actionGenes, metabolism, spawnThreshold, actionGeneMutation, metabolismMutation, spawnMutation);
 
-		the_species.setColor(worldParameters.getColor(name));
+		the_species.setColor(worldParameters.getColor(s_name));
 		the_species.setName(name);
 		the_species.setFoodValue(worldParameters.getAnimalFoodValue());
 
 		return the_species;
 	}
-	private static S_Species version20(String name, Scanner fin, WorldParameters worldParameters) {
+	private static S_Species version20(String name, String s_name, Scanner fin, WorldParameters worldParameters) {
 		S_Species retval = new S_Species(name);
 
 		return retval;

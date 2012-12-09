@@ -16,7 +16,7 @@ public class S_Genome implements Genome {
 	 * @param metabolismMutationChance
 	 * @param spawnThresholdMutationChance
 	 */
-	public S_Genome(List<ActionGene> genes, double metabolism,
+	public S_Genome(int initialGeneration, List<ActionGene> genes, double metabolism,
 			int spawnThreshold, double actionGeneMutationChance,
 			double metabolismMutationChance, double spawnThresholdMutationChance) {
 		this.genes = genes;
@@ -27,6 +27,7 @@ public class S_Genome implements Genome {
 		this.spawnThresholdMutationChance = spawnThresholdMutationChance;
 	}
 
+	private int initialGeneration;
 	private int spawnThreshold;
 	private double actionGeneMutationChance;
 	private double metabolismMutationChance;
@@ -34,44 +35,37 @@ public class S_Genome implements Genome {
 
 	@Override
 	public double getActionGeneMutationChance() {
-		// TODO Auto-generated method stub
-		return 0;
+		return actionGeneMutationChance;
 	}
 
 	@Override
 	public List<ActionGene> getActionGenes() {
-		// TODO Auto-generated method stub
-		return null;
+		return genes;
 	}
 
 	@Override
 	public int getInitialGeneration() {
-		// TODO Auto-generated method stub
-		return 0;
+		return initialGeneration;
 	}
 
 	@Override
 	public double getMetabolism() {
-		// TODO Auto-generated method stub
-		return 0;
+		return metabolism;
 	}
 
 	@Override
 	public double getMetabolismMutationChance() {
-		// TODO Auto-generated method stub
-		return 0;
+		return metabolismMutationChance;
 	}
 
 	@Override
 	public int getSpawnThreshold() {
-		// TODO Auto-generated method stub
-		return 0;
+		return spawnThreshold;
 	}
 
 	@Override
 	public double getSpawnThresholdMutationChance() {
-		// TODO Auto-generated method stub
-		return 0;
+		return spawnThresholdMutationChance;
 	}
 
 }

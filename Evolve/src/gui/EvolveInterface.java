@@ -29,7 +29,7 @@ import model.WorldParameters;
 
 public class EvolveInterface extends JFrame implements WorldListener,
 		ActionListener {
-	private static final String startingPath = "/home/blad/Teaching/421/notes/evolve/";
+	private static final String startingPath = ".";
 	/**
 	 * The application; provides services to the interface.
 	 */
@@ -47,10 +47,13 @@ public class EvolveInterface extends JFrame implements WorldListener,
 	private JMenuItem fileNewGame;
 	private JMenuItem fileLoadGame;
 	private JMenuItem fileQuit;
+	
+	private JMenuItem actionRun;
 
 	private WorldParameters current;
 
 	private JLabel lblGencount;
+	private JLabel lblTotalPopulationCount;
 
 	private WorldCanvas worldCanvas;
 	private List<JButton> speciesButtonList;
@@ -81,13 +84,20 @@ public class EvolveInterface extends JFrame implements WorldListener,
 		fileQuit.addActionListener(this);
 		mFile.add(fileQuit);
 		menuBar.add(mFile);
+		
+		JMenu mAction = new JMenu("Actions");
+		actionRun = new JMenuItem("Run/Pause");
+		actionRun.addActionListener(this);
+		mAction.add(actionRun);
+		menuBar.add(mAction);
 	}
 
 	/**
 	 * Initialize the contents of the frame.
 	 */
 	private void initialize() {
-		setBounds(100, 100, 640, 400);
+		setBounds(100, 100, 660, 480);
+		setResizable(false);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		getContentPane().setLayout(new BorderLayout(0, 0));
 
@@ -109,13 +119,25 @@ public class EvolveInterface extends JFrame implements WorldListener,
 		toolPanel.setLayout(new BoxLayout(toolPanel, BoxLayout.X_AXIS));
 
 		JLabel lblGeneration = new JLabel("Generation:");
-		toolPanel.add(lblGeneration);
-
-		Component horizontalStrut = Box.createHorizontalStrut(20);
-		toolPanel.add(horizontalStrut);
-
+		JLabel lblTotalPopulation = new JLabel("Total Population:");
 		lblGencount = new JLabel("9999999");
+		lblTotalPopulationCount = new JLabel("0");
+		
+		ArrayList<Component> struts = new ArrayList<Component>();
+		for(int i = 0; i < 10; i++) {
+			Component horizontalStrut = Box.createHorizontalStrut(20);
+			struts.add(horizontalStrut);
+		}
+		
+		toolPanel.add(struts.get(0));
+		
+		toolPanel.add(lblGeneration);
 		toolPanel.add(lblGencount);
+		
+		toolPanel.add(struts.get(1));
+		
+		toolPanel.add(lblTotalPopulation);
+		toolPanel.add(lblTotalPopulationCount);
 
 		JPanel speciesPanel = new JPanel();
 		speciesPanel.setLayout(new BoxLayout(speciesPanel, BoxLayout.Y_AXIS));
@@ -152,7 +174,7 @@ public class EvolveInterface extends JFrame implements WorldListener,
 	}
 
 	/**
-	 * Load the world from the given file object, initalizing it and kicking off
+	 * Load the world from the given file object, initializing it and kicking off
 	 * the simulation.
 	 *
 	 * @param file
@@ -163,7 +185,6 @@ public class EvolveInterface extends JFrame implements WorldListener,
 		if (current != null) {
 			World world = app.makeWorld(current);
 			world.addListener(this);
-
 			worldImage = new BufferedImage(current.getWidth(),
 					current.getHeight(), BufferedImage.TYPE_INT_ARGB);
 			worldCanvas.setWorldImage(worldImage);
@@ -183,6 +204,7 @@ public class EvolveInterface extends JFrame implements WorldListener,
 	public void next(World sender) {
 		sender.update(worldImage);
 		lblGencount.setText(String.format("%7d", sender.getGeneration()));
+		lblTotalPopulationCount.setText(String.format("%7d", sender.getPopulation()));
 		repaint();
 	}
 
@@ -206,6 +228,8 @@ public class EvolveInterface extends JFrame implements WorldListener,
 				File openFile = fileChooser.getSelectedFile();
 				setCurrentWorld(openFile);
 			}
+		} else if (src == actionRun) {
+			app.pauseToggle();
 		}
 	}
 

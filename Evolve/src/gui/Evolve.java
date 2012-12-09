@@ -56,6 +56,7 @@ public class Evolve {
 				worldMaker = worldClass.getConstructor();
 				World world = worldMaker.newInstance();
 				world.init(wp);
+				return world;
 			} catch (SecurityException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -78,7 +79,6 @@ public class Evolve {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-
 		return null;
 	}
 
@@ -127,6 +127,13 @@ public class Evolve {
 			}
 		}
 	}
+	
+	public void pauseToggle () {
+		if(currentWorld.paused())
+			currentWorld.unpause();
+		else
+			currentWorld.pause();
+	}
 
 	/**
 	 *
@@ -140,7 +147,6 @@ public class Evolve {
 			throw new NoWorldClassSpecified("Expected a world class name.");
 		String worldClassName = args[0];
 		Evolve instance = new Evolve(worldClassName);
-
 		instance.run();
 	}
 

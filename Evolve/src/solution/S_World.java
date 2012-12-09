@@ -19,9 +19,10 @@ import model.WorldParameters;
 
 public class S_World implements World {
 	private static final String SPECIES_FILE_EXTENSION = "SPC";
-	private S_Species[][] grid;
+	private int[][] grid;
 
 	private int generation;
+	private int population;
 
 	WorldParameters worldParameters;
 	List<S_Species> species;
@@ -36,23 +37,24 @@ public class S_World implements World {
 			throws FileNotFoundException {
 		this.worldParameters = worldParameters;
 
-		grid = new S_Species[worldParameters.getHeight()][];
-		for (int row = 0; row < worldParameters.getHeight(); ++row) {
-			grid[row] = new S_Species[worldParameters.getWidth()];
-			for (int column = 0; column < worldParameters.getHeight(); ++column) {
-				grid[row][column] = null;
+		grid = new int[worldParameters.getWidth()][worldParameters.getHeight()];
+		for (int x = 0; x < worldParameters.getWidth(); ++x) {
+			for (int y = 0; y < worldParameters.getHeight(); ++y) {
+				grid[x][y] = 0;
 			}
 		}
 
 		generation = 0;
+		population = 0;
 		subscribers = new ArrayList<WorldListener>();
+		Random r = new Random();
 
 		if (worldParameters.getVersion() == 1) {
 			species = new ArrayList<S_Species>();
 			plants = new ArrayList<S_Plant>();
 			for (String name : worldParameters.getSpeciesNames()) {
 				String speciesName = name + "." + SPECIES_FILE_EXTENSION;
-				String worldSpeciesName = worldParameters.getBasePath() + "/" + speciesName;
+				String worldSpeciesName = worldParameters.getBasePath() + "\\" + speciesName;
 				System.out.println(String.format("name: %s; speciesName: %s; worldSpeciesName: %s", name, speciesName, worldSpeciesName));
 				File fin = new File(speciesName);
 				if (!fin.exists()) {
@@ -61,7 +63,7 @@ public class S_World implements World {
 						throw new FileNotFoundException("Could not find file "
 								+ speciesName);
 				}
-				S_Species the_species = S_Species.loadSpecies(speciesName,
+				S_Species the_species = S_Species.loadSpecies(speciesName, name,
 						new Scanner(fin), worldParameters);
 				species.add(the_species);
 			}
@@ -70,9 +72,35 @@ public class S_World implements World {
 			plant.setName("soybeans");
 			plant.setFoodValue(worldParameters.getAnimalFoodValue());
 			plants.add(plant);
+			flora = new ArrayList<S_PlantInstance>();
+			fauna = new ArrayList<S_SpeciesInstance>();
+			for(S_Species curSpec : species) {
+				for(int i = 0; i < worldParameters.getInitialSpeciesPopulation(); i++) {
+					while(true){
+						int x = r.nextInt(worldParameters.getWidth());
+						int y = r.nextInt(worldParameters.getHeight());
+						if(grid[x][y] == 0) {
+							Location location = new Location();
+							location.x = x;
+							location.y = y;
+							fauna.add(new S_SpeciesInstance(curSpec, generation, worldParameters.getInitialEnergy(), location));
+							break;
+						}
+					}
+				}
+			}
+			for(int i = 0; i < worldParameters.getMaximumNumberOfPlants() / 2; i++) {
+				int x = r.nextInt(worldParameters.getWidth());
+				int y = r.nextInt(worldParameters.getHeight());
+				if(grid[x][y] == 0) {
+					Location location = new Location();
+					location.x = x;
+					location.y = y;
+					flora.add(new S_PlantInstance(plant, 0, location));
+				}
+				
+			}
 		}
-
-
 	}
 
 	private boolean running = true;
@@ -116,16 +144,66 @@ public class S_World implements World {
 		}
 	}
 
-	Random r = new Random();
 	@Override
 	public void update(BufferedImage display) {
 		Graphics d = display.getGraphics();
 		d.setColor(Color.black);
 		d.fillRect(0,  0,  display.getWidth(), display.getHeight());
-
-		for (int i = 0; i < 100; ++i) {
-			display.setRGB(r.nextInt(display.getWidth()),
-					       r.nextInt(display.getHeight()), Color.red.getRGB() );
+		
+		for(S_SpeciesInstance current : fauna) {
+			if(current.spawning()){
+				for(int x = 0; x < 3; x++) {
+					for(int y = 0; y < 3; y++) {
+						int x1 = current.getLocation().x + 1 - x;
+						int y1 = current.getLocation().y + 1 - y;
+						if(x1 < 0)
+							x1 = (worldParameters.getWidth() + x1) - x;
+						if(y1 < 0)
+							y1 = (worldParameters.getHeight() + y1) - y;
+						if(grid[x1][y1] == 0) {
+							Location location = new Location();
+							location.x = current.getLocation().x + 1 - x;
+							location.y = current.getLocation().y + 1 - y;
+							fauna.add(new S_SpeciesInstance(current.getSpecies(), generation, worldParameters.getInitialEnergy(), location));
+						}
+					}
+				}
+			}
+			
+			int [][] sensor = new int [9][9];
+			for(int x = -4; x < 5; x++) {
+				for(int y = -4; y < 5; y++) {
+					int x1 = current.getLocation().x + x;
+					int y1 = current.getLocation().y + y;
+					if(x1 < 0)
+						x1 = (worldParameters.getWidth() + x1) + x;
+					if(y1 < 0)
+						y1 = (worldParameters.getHeight() + y1) + y;
+					if(x1 >= worldParameters.getWidth())
+						x1 = x1 - worldParameters.getWidth();
+					if(y1 >= worldParameters.getHeight())
+						y1 = y1 - worldParameters.getHeight();
+					sensor[x + 4][y + 4] = grid[x1][y1];
+				}
+			}
+			
+			Location location = new Location();
+			Location facing = new Location();
+			
+			current.move(current.getLocation(), current.getLocation());
+			
+			if(current.getEnergy() == 0) {
+				display.setRGB(current.getLocation().x,
+						current.getLocation().y, Color.WHITE.getRGB());
+				fauna.remove(current);
+			} else {
+				display.setRGB(current.getLocation().x,
+					current.getLocation().y, current.getSpecies().getColor().getRGB());
+			}
+		}
+		for(S_PlantInstance current : flora) {
+			display.setRGB(current.getLocation().x,
+					current.getLocation().y, Color.GREEN.getRGB());
 		}
 	}
 
@@ -151,8 +229,10 @@ public class S_World implements World {
 
 	@Override
 	public int getPopulation() {
-		// TODO Auto-generated method stub
-		return 0;
+		int count = 0;
+		for(S_SpeciesInstance current : fauna)
+			count++;
+		return count;
 	}
 
 	@Override
@@ -163,13 +243,19 @@ public class S_World implements World {
 
 	@Override
 	public SpeciesInstance critterAt(Location location) {
-		// TODO Auto-generated method stub
+		for (S_SpeciesInstance current : fauna) {
+			if(current.getLocation().equals(location))
+				return current;
+		}
 		return null;
 	}
 
 	@Override
 	public PlantInstance plantAt(Location location) {
-		// TODO Auto-generated method stub
+		for (S_PlantInstance current : flora) {
+			if(current.getLocation().equals(location))
+				return current;
+		}
 		return null;
 	}
 
